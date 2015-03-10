@@ -2,7 +2,7 @@ from nimble import cmds
 
 class Box:
 
-    FRAME_STEP = 3
+    FRAME_STEP = 2
 
     def __init__(self, numFrames):
         self.heights = [1 for x in range(numFrames/Box.FRAME_STEP)]

@@ -24,14 +24,15 @@ class Scene(object):
         self.numFrames = 24 * self.length/self.sampleRate
 
     def calculatePower(self, frame, frameStep, freqIndex, freqResolution):
-        freqResolution = 2**5 * 2**(freqIndex/2)
+        freqResolution = 2**5 * 2**(freqIndex/2.)
         numSamples = self.sampleRate/freqResolution # Calculate number of samples needed for freqResolution Hz per index
         samplesPerKeyframe = frameStep*self.sampleRate/24 # Calculate how many samples to step by between keyframes
         fftResult = numpy.fft.rfft(self.waveform[samplesPerKeyframe*frame:(samplesPerKeyframe*frame)+numSamples]) # Calculate fft (only real values) returns complex array
+        print len(fftResult), freqResolution, freqIndex
         if(freqIndex == 0):
-            return numpy.abs(fftResult[0])
+            return numpy.abs(fftResult[0])*freqResolution
         else:
-            return numpy.abs(fftResult[1])
+            return numpy.abs(fftResult[1])*freqResolution
         F#return 0#numpy.abs(fftResult[freqIndex]) # Return real interpretation of complex number at freqIndex (frequency slot requested)
 
 
@@ -41,8 +42,7 @@ class BoxScene(Scene):
         super(self.__class__, self).__init__(waveform, sampleRate, freqMin, freqMax)
 
         ### Initialize default values
-        self.numBoxes = 20
-        self.frameStep = 3
+        self.numBoxes = 19
 
         ### Initialize calculatable values
         self.freqStep = (self.freqMax-self.freqMin)/self.numBoxes
@@ -72,6 +72,11 @@ class BoxScene(Scene):
         for box in self.boxes:
             for frame in range(box.getNumberOfFrames()):
                 box.setHeight(box.getHeight(frame)*10/norm, frame)
+
+        for box in self.boxes:
+            for frame in range(1, box.getNumberOfFrames()):
+                box.setHeight(max(box.getHeight(frame), box.getHeight(frame-1)-.5), frame)
+
         for box in range(len(self.boxes)):
             print "Keyframing object ", box
             self.boxes[box].render()
