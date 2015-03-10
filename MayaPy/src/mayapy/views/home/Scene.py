@@ -18,22 +18,28 @@ class Scene(object):
         self.sampleRate = sampleRate
         self.freqMin = freqMin
         self.freqMax = freqMax
+        self.octavePerBox = .25
 
         # Initialize Calculated variables
         self.length = waveform.shape[0]
         self.numFrames = 24 * self.length/self.sampleRate
+        self.numOctaves = 0
+        curFreq = self.freqMax
+        while curFreq > 32:
+            pass
+        #self.numObjects =
 
-    def calculatePower(self, frame, frameStep, freqIndex, freqResolution):
+    def calculatePower(self, frame, frameStep, freqIndex):
         freqResolution = 2**5 * 2**(freqIndex/2.)
         numSamples = self.sampleRate/freqResolution # Calculate number of samples needed for freqResolution Hz per index
         samplesPerKeyframe = frameStep*self.sampleRate/24 # Calculate how many samples to step by between keyframes
         fftResult = numpy.fft.rfft(self.waveform[samplesPerKeyframe*frame:(samplesPerKeyframe*frame)+numSamples]) # Calculate fft (only real values) returns complex array
         print len(fftResult), freqResolution, freqIndex
         if(freqIndex == 0):
-            return numpy.abs(fftResult[0])*freqResolution
+            return numpy.abs(fftResult[0])*1
         else:
-            return numpy.abs(fftResult[1])*freqResolution
-        F#return 0#numpy.abs(fftResult[freqIndex]) # Return real interpretation of complex number at freqIndex (frequency slot requested)
+            return numpy.abs(fftResult[1])*1
+        #return 0#numpy.abs(fftResult[freqIndex]) # Return real interpretation of complex number at freqIndex (frequency slot requested)
 
 
 class BoxScene(Scene):
@@ -60,7 +66,7 @@ class BoxScene(Scene):
             #heights = list()
             print "Calculating object ", boxNum
             for frame in range(self.boxes[boxNum].getNumberOfFrames()):
-                height = self.calculatePower(frame, Box.FRAME_STEP, boxNum, 80)
+                height = self.calculatePower(frame, Box.FRAME_STEP, boxNum)
                 self.boxes[boxNum].setHeight(height, frame)
 
         print "Calculating norms..."

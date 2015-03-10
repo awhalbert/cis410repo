@@ -26,7 +26,7 @@ def main():
     rate,data=wav.read(filename)
 
     print "Creating Scenes..."
-    scene = BoxScene(data.T[0], rate, 0, int(1e4), (-10, 1, 2))
+    scene = BoxScene(data.T[0], rate, 0, 8000, (-10, 1, 2))
 
     print "Animating Scenes..."
     scene.animate()
