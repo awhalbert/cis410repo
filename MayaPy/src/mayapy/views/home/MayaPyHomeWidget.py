@@ -4,7 +4,6 @@
 
 from PySide import QtGui
 
-from mayapy.views.home import specAnlys
 from pyglass.widgets.PyGlassWidget import PyGlassWidget
 from mayapy.enum.UserConfigEnum import UserConfigEnum
 from mayapy.views.home.NimbleStatusElement import NimbleStatusElement
@@ -55,13 +54,14 @@ class MayaPyHomeWidget(PyGlassWidget):
     def _handleAssignment2(self):
         self.mainWindow.setActiveWidget('assignment2')
 
-#___________________________________________________________________________________________________ _handleAssignment2
+#___________________________________________________________________________________________________ _handleAssignment3
     def _handleAssignment3(self):
         self.mainWindow.setActiveWidget('assignment3')
 
-#___________________________________________________________________________________________________ _handleAssignment2
+#___________________________________________________________________________________________________ _handleAssignment4
     def _handleAssignment4(self):
         self.mainWindow.setActiveWidget('assignment4')
 
+#___________________________________________________________________________________________________ _handleViz
     def _handleViz(self):
-        specAnlys.main()
+        self.mainWindow.setActiveWidget('viz')

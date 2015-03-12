@@ -51,7 +51,7 @@
       <item>
        <widget class="QPushButton" name="vizBtn">
         <property name="text">
-         <string>3d Viz</string>
+         <string>3DViz</string>
         </property>
        </widget>
       </item>
