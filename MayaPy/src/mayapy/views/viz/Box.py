@@ -58,7 +58,6 @@ class BoxOnSphere(Box):
         self.theta = (360/self.numBoxes) * self.index - 90
     def calculatePositions(self, frame, radii):
         r = (radii[frame] + .5)*.96 # we add .5 so the bottom of a box aligns with the surface of the sphere, not the middle of a box's original height
-        # print('radius: ' + str(r) + ', frame: ' + str(frame))
         self.positions[frame] = (r * cos(radians(self.theta + 90)), r * sin(radians(self.theta + 90)))
         self.widths[frame] = ( 2 * pi * r ) / self.numBoxes
     def angleOnUnitCircle(self, theta):
@@ -69,21 +68,6 @@ class BoxOnSphere(Box):
         if(self.name == "unnamed"):
             self.name = cmds.polyCube(n='visBox')[0]
             cmds.xform(sp=[self.posX, -.5, self.posZ], ro=[0,0,self.theta])
-
-        # this code will average the heights of a finer sampling into a coarser keyframing
-
-        # for i in range(0, len(self.heights), BoxOnSphere.SPHERE_STEP): # i steps by SPHERE_STEP
-        #     cmds.setKeyframe(self.name, v=self.avg([x for x in self.heights[i:i+BoxOnSphere.SPHERE_STEP]]), at='scaleY', t=i)
-        #     # x[0] for x in self.positions[i:i+BoxOnSphere.SPHERE_STEP]
-        #
-        # for i in range(len(self.widths)):
-        #     cmds.setKeyframe(self.name, v=self.positions[i][0], at='translateX', t=i*BoxOnSphere.SPHERE_STEP)
-        #     cmds.setKeyframe(self.name, v=self.positions[i][1], at='translateY', t=i*BoxOnSphere.SPHERE_STEP)
-        #     cmds.setKeyframe(self.name, v=self.widths[i], at='scaleX', t=i*BoxOnSphere.SPHERE_STEP)
-        #     cmds.setKeyframe(self.name, v=self.widths[i], at='scaleZ', t=i*BoxOnSphere.SPHERE_STEP)
-
-
-        # this code does no averaging -- the heights are sampled every 3 frame lengths
         for i in range(len(self.heights)):
             cmds.setKeyframe(self.name, v=self.heights[i], at='scaleY', t=i*BoxOnSphere.SPHERE_STEP)
             cmds.setKeyframe(self.name, v=self.positions[i][0], at='translateX', t=i*BoxOnSphere.SPHERE_STEP)

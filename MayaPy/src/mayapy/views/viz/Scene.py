@@ -53,7 +53,7 @@ class BoxScene(Scene):
         for i in range(self.numBoxes):
             self.boxes[i].setPosition(i + leftMostX, locY, locZ)
 
-    def animate(self):
+    def animate(self, heightFactor):
 
         samplesPerKeyframe = Box.FRAME_STEP*self.sampleRate/24
         timeStep = Box.FRAME_STEP*24
@@ -61,7 +61,7 @@ class BoxScene(Scene):
         for boxNum in range(len(self.boxes)):
             print "Calculating object ", boxNum
             for frame in range(Box.getNumberOfFrames(self.boxes[boxNum])):
-                height = self.calculatePower(frame, Box.FRAME_STEP, boxNum, 80)
+                height = self.calculatePower(frame, Box.FRAME_STEP, boxNum, 80) * heightFactor
                 self.boxes[boxNum].setHeight(height, frame)
 
         print "Calculating norms..."
@@ -92,7 +92,7 @@ class BoxOnSphereScene(BoxScene):
         self.boxes = [BoxOnSphere(self.numFrames, sphere, x, self.numBoxes) for x in range(self.numBoxes)]
         self.radii = [(0,0) for x in range(self.boxes[0].numFrames/BoxOnSphere.SPHERE_STEP)]
 
-    def animate(self):
+    def animate(self, scaleFactor, heightFactor):
 
         samplesPerKeyframe = Box.FRAME_STEP*self.sampleRate/24
         timeStep = Box.FRAME_STEP*24
@@ -101,7 +101,9 @@ class BoxOnSphereScene(BoxScene):
         for boxNum in range(len(self.boxes)):
             print "Calculating heights and positions for object", boxNum
             for frame in range(Box.getNumberOfFrames(self.boxes[boxNum])):
-                height = self.calculatePower(frame, Box.FRAME_STEP, boxNum, 80)
+                # multiply heightFactor by scaleFactor so the effect of a 4x magnification of the height of
+                # the boxes is relative to the size of the sphere
+                height = self.calculatePower(frame, Box.FRAME_STEP, boxNum, 80) * heightFactor * scaleFactor
                 self.boxes[boxNum].setHeight(height, frame)
             for frame in range(self.boxes[boxNum].getNumberOfFrames()):
                 self.boxes[boxNum].calculatePositions(frame, self.radii)
@@ -117,20 +119,17 @@ class BoxOnSphereScene(BoxScene):
             for frame in range(Box.getNumberOfFrames(box)):
                 box.setHeight(box.getHeight(frame)*10/norm, frame)
         for box in range(len(self.boxes)):
-            print "Keyframing object ", box
+            print "Keyframing object", box
             self.boxes[box].render()
 
     def calculatePower(self, frame, frameStep, freqIndex, freqResolution):
-        scaleFactor = 20
         freqResolution = 2**5 * 2**(freqIndex/2.)
         numSamples = self.sampleRate/freqResolution # Calculate number of samples needed for freqResolution Hz per index
         samplesPerKeyframe = frameStep*self.sampleRate/24 # Calculate how many samples to step by between keyframes
-        fftResult = numpy.fft.rfft(self.waveform[samplesPerKeyframe*frame:(samplesPerKeyframe*frame)+numSamples]) # Calculate fft (only real values) returns complex array
+        fftResult = numpy.fft.rfft(self.waveform[samplesPerKeyframe*frame:(samplesPerKeyframe*frame)+numSamples]) # Calculate fft (only real values), returns complex array
         if(freqIndex == 0):
-            return numpy.abs(fftResult[0]) * freqIndex**3 * scaleFactor
-        else:
-            return numpy.abs(fftResult[1]) * freqIndex**3 * scaleFactor
-        #return 0#numpy.abs(fftResult[freqIndex]) # Return real interpretation of complex number at freqIndex (frequency slot requested)
+            return numpy.abs(fftResult[0]) * freqIndex**3
+        return numpy.abs(fftResult[1]) * freqIndex**3
     def calculateRadii(self):
         print('Calculating radii...')
         for frame in range(self.boxes[0].getNumberOfFrames()):
@@ -154,7 +153,7 @@ class DropScene(Scene):
         for i in range(self.numDrops):
             self.drops[i].setPosition(i + locX, locY, locZ)
 
-    def animate(self):
+    def animate(self, scaleFactor, heightFactor):
 
         samplesPerKeyframe = Drop.FRAME_STEP*self.sampleRate/24
         timeStep = Drop.FRAME_STEP*24
